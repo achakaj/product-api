@@ -1,0 +1,2307 @@
+{
+  "info": {
+    "_postman_id": "b6c1f2a4-6d3e-4f7a-9c21-5e8d0a7b3f61",
+    "name": "Product API",
+    "description": "Lab 6 : tests de l'API produits (Node.js, Express, MySQL). Les dossiers sont a lancer dans l'ordre. Les noms crees utilisent un suffixe unique et tout est supprime a la fin, donc on peut relancer la collection sans reinitialiser la base.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 Categories",
+      "description": "Tests des routes /api/categories (liste, detail, creation, modification, erreurs).",
+      "item": [
+        {
+          "name": "01.1 Lister les categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est un tableau avec id et name\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an(\"array\");",
+                  "    pm.expect(body.length).to.be.at.least(3);",
+                  "    body.forEach(c => {",
+                  "        pm.expect(c).to.have.property(\"id\");",
+                  "        pm.expect(c).to.have.property(\"name\");",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            },
+            "description": "Recupere toutes les categories. On doit avoir au moins les 3 categories de depart."
+          },
+          "response": []
+        },
+        {
+          "name": "01.2 Categorie 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"La categorie 1 est Électronique\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.id).to.eql(1);",
+                  "    pm.expect(body.name).to.eql(\"Électronique\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "1"
+              ]
+            },
+            "description": "Recupere la categorie 1 (Électronique)."
+          },
+          "response": []
+        },
+        {
+          "name": "01.3 Creer une categorie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"La categorie est creee avec le bon nom\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.id).to.be.a(\"number\");",
+                  "    pm.expect(body.name).to.eql(\"Jeux \" + pm.environment.get(\"suffix\"));",
+                  "    pm.environment.set(\"categoryId\", body.id);",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            },
+            "description": "Cree une nouvelle categorie avec un nom unique et garde son id dans categoryId.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Jeux {{suffix}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.4 Creer une categorie deja existante",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 409\", function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Erreur : Category name already exists\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.eql(\"Category name already exists\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            },
+            "description": "On renvoie le meme nom, l'API doit refuser avec 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Jeux {{suffix}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.5 Creer une categorie avec un nom trop court",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Tableau errors avec le message attendu\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.errors).to.be.an(\"array\").that.is.not.empty;",
+                  "    const msgs = body.errors.map(e => e.msg);",
+                  "    pm.expect(msgs).to.include(\"Category name too short\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            },
+            "description": "Un nom d'une seule lettre doit etre refuse (400).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"A\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.6 Modifier la categorie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Le nom est bien modifie\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.id).to.eql(Number(pm.environment.get(\"categoryId\")));",
+                  "    pm.expect(body.name).to.eql(\"Jeux video \" + pm.environment.get(\"suffix\"));",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{categoryId}}"
+              ]
+            },
+            "description": "Change le nom de la categorie creee juste avant.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Jeux video {{suffix}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "01.7 Categorie inexistante",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Erreur : Category not found\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.eql(\"Category not found\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "999999"
+              ]
+            },
+            "description": "Une categorie qui n'existe pas doit renvoyer 404."
+          },
+          "response": []
+        },
+        {
+          "name": "01.8 Categorie avec id invalide",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Tableau errors present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.errors).to.be.an(\"array\").that.is.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "abc"
+              ]
+            },
+            "description": "Un id qui n'est pas un nombre doit renvoyer 400."
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// On fixe un suffixe unique au debut de chaque execution",
+              "// pour pouvoir relancer la collection sans vider la base.",
+              "if (pm.info.requestName.startsWith(\"01.1 \") || !pm.environment.get(\"suffix\")) {",
+              "    pm.environment.set(\"suffix\", Date.now().toString());",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Produits CRUD",
+      "description": "Tests du CRUD sur /api/products.",
+      "item": [
+        {
+          "name": "02.1 Lister les produits",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est un tableau de produits\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an(\"array\");",
+                  "    pm.expect(body.length).to.be.at.least(1);",
+                  "    body.forEach(p => {",
+                  "        pm.expect(p).to.include.keys(\"id\", \"name\", \"price\", \"category_id\");",
+                  "        pm.expect(p.price).to.be.a(\"number\");",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            },
+            "description": "Recupere tous les produits."
+          },
+          "response": []
+        },
+        {
+          "name": "02.2 Produit 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Le produit a les bons champs\", function () {",
+                  "    const p = pm.response.json();",
+                  "    pm.expect(p).to.have.all.keys(\"id\", \"name\", \"price\", \"category_id\");",
+                  "});",
+                  "",
+                  "pm.test(\"C'est le Smartphone a 699.99\", function () {",
+                  "    const p = pm.response.json();",
+                  "    pm.expect(p.id).to.eql(1);",
+                  "    pm.expect(p.name).to.eql(\"Smartphone\");",
+                  "    pm.expect(p.price).to.be.a(\"number\");",
+                  "    pm.expect(p.price).to.eql(699.99);",
+                  "    pm.expect(p.category_id).to.eql(1);",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "1"
+              ]
+            },
+            "description": "Recupere le produit 1 (Smartphone). Le prix doit etre un nombre."
+          },
+          "response": []
+        },
+        {
+          "name": "02.3 Creer un produit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Le produit a les bons champs\", function () {",
+                  "    const p = pm.response.json();",
+                  "    pm.expect(p).to.have.all.keys(\"id\", \"name\", \"price\", \"category_id\");",
+                  "});",
+                  "",
+                  "pm.test(\"Le produit cree a les bonnes valeurs\", function () {",
+                  "    const p = pm.response.json();",
+                  "    pm.expect(p.id).to.be.a(\"number\");",
+                  "    pm.expect(p.name).to.eql(\"Casque audio \" + pm.environment.get(\"suffix\"));",
+                  "    pm.expect(p.price).to.eql(59.99);",
+                  "    pm.expect(p.category_id).to.eql(1);",
+                  "    pm.environment.set(\"productId\", p.id);",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            },
+            "description": "Cree un produit dans la categorie 1 et garde son id dans productId.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Casque audio {{suffix}}\",\n    \"price\": 59.99,\n    \"category_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02.4 Lire le produit cree",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Le produit a les bons champs\", function () {",
+                  "    const p = pm.response.json();",
+                  "    pm.expect(p).to.have.all.keys(\"id\", \"name\", \"price\", \"category_id\");",
+                  "});",
+                  "",
+                  "pm.test(\"On retrouve le produit cree\", function () {",
+                  "    const p = pm.response.json();",
+                  "    pm.expect(p.id).to.eql(Number(pm.environment.get(\"productId\")));",
+                  "    pm.expect(p.name).to.eql(\"Casque audio \" + pm.environment.get(\"suffix\"));",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{productId}}"
+              ]
+            },
+            "description": "Verifie que le produit cree existe bien."
+          },
+          "response": []
+        },
+        {
+          "name": "02.5 Modifier le produit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Le produit a les bons champs\", function () {",
+                  "    const p = pm.response.json();",
+                  "    pm.expect(p).to.have.all.keys(\"id\", \"name\", \"price\", \"category_id\");",
+                  "});",
+                  "",
+                  "pm.test(\"Le prix et la categorie sont modifies\", function () {",
+                  "    const p = pm.response.json();",
+                  "    pm.expect(p.id).to.eql(Number(pm.environment.get(\"productId\")));",
+                  "    pm.expect(p.price).to.eql(49.99);",
+                  "    pm.expect(p.category_id).to.eql(Number(pm.environment.get(\"categoryId\")));",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{productId}}"
+              ]
+            },
+            "description": "Change le prix a 49.99 et met le produit dans la categorie creee au dossier 01.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Casque audio {{suffix}}\",\n    \"price\": 49.99,\n    \"category_id\": {{categoryId}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "02.6 Produit inexistant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Erreur : Product not found\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.eql(\"Product not found\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "999999"
+              ]
+            },
+            "description": "Un produit qui n'existe pas doit renvoyer 404."
+          },
+          "response": []
+        },
+        {
+          "name": "02.7 Produit avec id invalide",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Tableau errors avec le message attendu\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.errors).to.be.an(\"array\").that.is.not.empty;",
+                  "    const msgs = body.errors.map(e => e.msg);",
+                  "    pm.expect(msgs).to.include(\"id must be a positive integer\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "abc"
+              ]
+            },
+            "description": "Un id qui n'est pas un entier positif doit renvoyer 400."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 Validation",
+      "description": "Verifie que les donnees invalides sont bien refusees.",
+      "item": [
+        {
+          "name": "03.1 Nom trop court",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Tableau errors avec le message attendu\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.errors).to.be.an(\"array\").that.is.not.empty;",
+                  "    const msgs = body.errors.map(e => e.msg);",
+                  "    pm.expect(msgs).to.include(\"Name must be at least 3 chars\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            },
+            "description": "Un nom de 2 caracteres doit etre refuse.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"ab\",\n    \"price\": 10,\n    \"category_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.2 Prix egal a 0",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Tableau errors avec le message attendu\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.errors).to.be.an(\"array\").that.is.not.empty;",
+                  "    const msgs = body.errors.map(e => e.msg);",
+                  "    pm.expect(msgs).to.include(\"Price must be positive\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            },
+            "description": "Un prix de 0 doit etre refuse.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Produit test {{suffix}}\",\n    \"price\": 0,\n    \"category_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.3 Prix negatif",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Tableau errors avec le message attendu\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.errors).to.be.an(\"array\").that.is.not.empty;",
+                  "    const msgs = body.errors.map(e => e.msg);",
+                  "    pm.expect(msgs).to.include(\"Price must be positive\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            },
+            "description": "Un prix negatif doit etre refuse.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Produit test {{suffix}}\",\n    \"price\": -5,\n    \"category_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.4 Categorie inexistante",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Erreur : Invalid category_id\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.eql(\"Invalid category_id\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            },
+            "description": "Un category_id qui n'existe pas doit renvoyer 400 Invalid category_id.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Produit test {{suffix}}\",\n    \"price\": 10,\n    \"category_id\": 999999\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.5 category_id non numerique",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Tableau errors avec le message attendu\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.errors).to.be.an(\"array\").that.is.not.empty;",
+                  "    const msgs = body.errors.map(e => e.msg);",
+                  "    pm.expect(msgs).to.include(\"category_id must be a positive integer\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            },
+            "description": "Un category_id texte doit etre refuse par la validation.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Produit test {{suffix}}\",\n    \"price\": 10,\n    \"category_id\": \"x\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.6 Modifier un produit inexistant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Erreur : Product not found\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.eql(\"Product not found\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/999999",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "999999"
+              ]
+            },
+            "description": "Un PUT avec un corps valide sur un produit qui n'existe pas doit renvoyer 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Produit test {{suffix}}\",\n    \"price\": 10,\n    \"category_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 Recherche",
+      "description": "Tests de /api/products/search (filtres, tri, pagination, erreurs).",
+      "item": [
+        {
+          "name": "04.1 Recherche par nom",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est un tableau\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "pm.test(\"Tous les noms contiennent phone\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.length).to.be.at.least(1);",
+                  "    body.forEach(p => pm.expect(p.name.toLowerCase()).to.include(\"phone\"));",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/search?name=phone",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "phone"
+                }
+              ]
+            },
+            "description": "Cherche les produits dont le nom contient \"phone\"."
+          },
+          "response": []
+        },
+        {
+          "name": "04.2 Recherche par prix",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est un tableau\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "pm.test(\"Tous les prix sont entre 10 et 100\", function () {",
+                  "    const body = pm.response.json();",
+                  "    body.forEach(p => {",
+                  "        pm.expect(p.price).to.be.at.least(10);",
+                  "        pm.expect(p.price).to.be.at.most(100);",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/search?minPrice=10&maxPrice=100",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "minPrice",
+                  "value": "10"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "100"
+                }
+              ]
+            },
+            "description": "Cherche les produits entre 10 et 100."
+          },
+          "response": []
+        },
+        {
+          "name": "04.3 Recherche par categorie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est un tableau\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "pm.test(\"Tous les produits sont dans la categorie 1\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.length).to.be.at.least(1);",
+                  "    body.forEach(p => pm.expect(p.category_id).to.eql(1));",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/search?categoryId=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "categoryId",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Cherche les produits de la categorie 1."
+          },
+          "response": []
+        },
+        {
+          "name": "04.4 Tri par prix decroissant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est un tableau\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "pm.test(\"Au plus 2 resultats tries par prix decroissant\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.length).to.be.at.most(2);",
+                  "    for (let i = 1; i < body.length; i++) {",
+                  "        pm.expect(body[i - 1].price).to.be.at.least(body[i].price);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/search?sort=price&order=desc&limit=2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "price"
+                },
+                {
+                  "key": "order",
+                  "value": "desc"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            },
+            "description": "Les 2 produits les plus chers, du plus cher au moins cher."
+          },
+          "response": []
+        },
+        {
+          "name": "04.5 Pagination page 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est un tableau\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "pm.test(\"Un seul resultat\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.length).to.eql(1);",
+                  "    pm.environment.set(\"firstPageId\", body[0].id);",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/search?sort=id&limit=1&offset=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "id"
+                },
+                {
+                  "key": "limit",
+                  "value": "1"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Premier produit (tri par id). On garde son id pour la requete suivante."
+          },
+          "response": []
+        },
+        {
+          "name": "04.6 Pagination page 2",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est un tableau\", function () {",
+                  "    pm.expect(pm.response.json()).to.be.an(\"array\");",
+                  "});",
+                  "",
+                  "pm.test(\"Un seul resultat, different de la page 1\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.length).to.eql(1);",
+                  "    pm.expect(body[0].id).to.not.eql(Number(pm.environment.get(\"firstPageId\")));",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/search?sort=id&limit=1&offset=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "id"
+                },
+                {
+                  "key": "limit",
+                  "value": "1"
+                },
+                {
+                  "key": "offset",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Deuxieme produit (offset 1). Il doit etre different du premier."
+          },
+          "response": []
+        },
+        {
+          "name": "04.7 Tri sur une colonne interdite",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Tableau errors present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.errors).to.be.an(\"array\").that.is.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/search?sort=password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "password"
+                }
+              ]
+            },
+            "description": "Le tri sur une colonne non autorisee doit etre refuse."
+          },
+          "response": []
+        },
+        {
+          "name": "04.8 Limite egale a 0",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Tableau errors present\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.errors).to.be.an(\"array\").that.is.not.empty;",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/search?limit=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "limit doit etre entre 1 et 100, donc 0 est refuse."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 Transaction",
+      "description": "Tests de POST /api/products/with-category (categorie et produit crees dans une transaction).",
+      "item": [
+        {
+          "name": "05.1 Produit avec nouvelle categorie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Le produit a les bons champs\", function () {",
+                  "    const p = pm.response.json();",
+                  "    pm.expect(p).to.have.all.keys(\"id\", \"name\", \"price\", \"category_id\");",
+                  "});",
+                  "",
+                  "pm.test(\"Le produit est cree avec une nouvelle categorie\", function () {",
+                  "    const p = pm.response.json();",
+                  "    pm.expect(p.id).to.be.a(\"number\");",
+                  "    pm.expect(p.name).to.eql(\"Livre SQL \" + pm.environment.get(\"suffix\"));",
+                  "    pm.expect(p.price).to.eql(29.9);",
+                  "    pm.expect(p.category_id).to.be.a(\"number\");",
+                  "    pm.environment.set(\"txProductId\", p.id);",
+                  "    pm.environment.set(\"txCategoryId\", p.category_id);",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/with-category",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "with-category"
+              ]
+            },
+            "description": "Cree la categorie \"Informatique\" (elle n'existe pas encore) puis le produit. On garde txProductId et txCategoryId.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Livre SQL {{suffix}}\",\n    \"price\": 29.9,\n    \"categoryName\": \"Informatique {{suffix}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.2 Verifier la categorie creee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Le nom de la categorie est correct\", function () {",
+                  "    const c = pm.response.json();",
+                  "    pm.expect(c.id).to.eql(Number(pm.environment.get(\"txCategoryId\")));",
+                  "    pm.expect(c.name).to.eql(\"Informatique \" + pm.environment.get(\"suffix\"));",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/{{txCategoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{txCategoryId}}"
+              ]
+            },
+            "description": "Verifie que la categorie a bien ete creee par la transaction."
+          },
+          "response": []
+        },
+        {
+          "name": "05.3 Produit avec categorie existante",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Le produit a les bons champs\", function () {",
+                  "    const p = pm.response.json();",
+                  "    pm.expect(p).to.have.all.keys(\"id\", \"name\", \"price\", \"category_id\");",
+                  "});",
+                  "",
+                  "pm.test(\"La categorie existante 2 est reutilisee\", function () {",
+                  "    const p = pm.response.json();",
+                  "    pm.expect(p.name).to.eql(\"Guide Python \" + pm.environment.get(\"suffix\"));",
+                  "    pm.expect(p.category_id).to.eql(2);",
+                  "    pm.environment.set(\"txProduct2Id\", p.id);",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/with-category",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "with-category"
+              ]
+            },
+            "description": "La categorie \"Livres\" existe deja (id 2), elle doit etre reutilisee. On garde txProduct2Id.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Guide Python {{suffix}}\",\n    \"price\": 25,\n    \"categoryName\": \"Livres\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.4 Produit sans categoryName",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Tableau errors avec le message attendu\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.errors).to.be.an(\"array\").that.is.not.empty;",
+                  "    const msgs = body.errors.map(e => e.msg);",
+                  "    pm.expect(msgs).to.include(\"Category name too short\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/with-category",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "with-category"
+              ]
+            },
+            "description": "Sans categoryName la validation doit refuser la requete.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Produit test {{suffix}}\",\n    \"price\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 Suppressions et erreurs",
+      "description": "Nettoyage de tout ce qui a ete cree et derniers cas d'erreur.",
+      "item": [
+        {
+          "name": "06.1 Supprimer une categorie encore utilisee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Erreur : Cannot delete category with linked products\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.eql(\"Cannot delete category with linked products\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{categoryId}}"
+              ]
+            },
+            "description": "Le produit productId est encore rattache a cette categorie, donc la suppression est refusee."
+          },
+          "response": []
+        },
+        {
+          "name": "06.2 Supprimer le produit",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});",
+                  "",
+                  "pm.test(\"Pas de corps dans la reponse\", function () {",
+                  "    pm.expect(pm.response.text()).to.eql(\"\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{productId}}"
+              ]
+            },
+            "description": "Supprime le produit cree au dossier 02."
+          },
+          "response": []
+        },
+        {
+          "name": "06.3 Supprimer le produit une deuxieme fois",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Erreur : Product not found\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.eql(\"Product not found\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{productId}}"
+              ]
+            },
+            "description": "Le produit est deja supprime, on doit avoir 404."
+          },
+          "response": []
+        },
+        {
+          "name": "06.4 Supprimer la categorie",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});",
+                  "",
+                  "pm.test(\"Pas de corps dans la reponse\", function () {",
+                  "    pm.expect(pm.response.text()).to.eql(\"\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{categoryId}}"
+              ]
+            },
+            "description": "La categorie n'a plus de produit, la suppression doit marcher."
+          },
+          "response": []
+        },
+        {
+          "name": "06.5 Supprimer le produit de la transaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});",
+                  "",
+                  "pm.test(\"Pas de corps dans la reponse\", function () {",
+                  "    pm.expect(pm.response.text()).to.eql(\"\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{txProductId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{txProductId}}"
+              ]
+            },
+            "description": "Supprime le produit \"Livre SQL\" cree au dossier 05."
+          },
+          "response": []
+        },
+        {
+          "name": "06.6 Supprimer le deuxieme produit de la transaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});",
+                  "",
+                  "pm.test(\"Pas de corps dans la reponse\", function () {",
+                  "    pm.expect(pm.response.text()).to.eql(\"\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{txProduct2Id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{txProduct2Id}}"
+              ]
+            },
+            "description": "Supprime le produit \"Guide Python\" cree au dossier 05."
+          },
+          "response": []
+        },
+        {
+          "name": "06.7 Supprimer la categorie de la transaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 204\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});",
+                  "",
+                  "pm.test(\"Pas de corps dans la reponse\", function () {",
+                  "    pm.expect(pm.response.text()).to.eql(\"\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/{{txCategoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "{{txCategoryId}}"
+              ]
+            },
+            "description": "Supprime la categorie \"Informatique\" creee par la transaction."
+          },
+          "response": []
+        },
+        {
+          "name": "06.8 Route inconnue",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Le statut est 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"La reponse est en JSON\", function () {",
+                  "    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+                  "});",
+                  "",
+                  "pm.test(\"Erreur : Route not found\", function () {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.error).to.eql(\"Route not found\");",
+                  "});",
+                  "",
+                  "pm.test(\"Temps de reponse < 500 ms\", function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(500);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/unknown",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "unknown"
+              ]
+            },
+            "description": "Une route qui n'existe pas doit renvoyer 404 Route not found."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
